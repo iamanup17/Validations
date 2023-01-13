@@ -13,15 +13,15 @@ import {
   useNavigate,
   redirect,
 } from "react-router-dom";
-import One from "./components/Home/One";
-import Two from "./components/Home/Two";
-import Three from "./components/Three";
-import Four from "./components/Four";
-import Six from "./components/Six";
-import Five from "./components/Five";
-import Logins from "./components/Logins";
-
-
+import TimeTracker from "./components/Home/pages/TimeTracker";
+import Dashboard from "./components/Home/pages/Dashboard";
+import Reports from "./components/Home/pages/Reports";
+import Projects from "./components/Home/pages/Projects";
+import Settings from "./components/Home/pages/Settings";
+import Team from "./components/Home/pages/Team";
+import Logins from "./pages/Logins";
+import Protected from "./components/Protected";
+import SignUp from "./pages/SignUp";
 
 const App = () => {
   return (
@@ -30,20 +30,20 @@ const App = () => {
         <GlobalStyles />
 
         <Router>
-            <Routes>
-              <Route path="/" element={<Logins />} />
+          <Routes>
+            <Route path="/" element={<Logins />} />
+            <Route path="/signup" element={<SignUp />} />
 
-              <Route path="/tracker" element={<Home />}>
-                <Route path="" element={<One />} />
-                <Route path="two" element={<Two />} />
-                <Route path="three" element={<Three />} />
-                <Route path="four" element={<Four />} />
-                <Route path="five" element={<Five />} />
-                <Route path="six" element={<Six />} />
-              </Route>
-            </Routes>
+            <Route path="/tracker" element={<Protected Component={Home} />}>
+              <Route path="" element={<TimeTracker />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="projects" element={<Projects />} />
+              <Route path="team" element={<Team />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
         </Router>
-        {/* {isSignedIn && redirect("/tracker")} */}
       </ThemeProvider>
     </Provider>
   );

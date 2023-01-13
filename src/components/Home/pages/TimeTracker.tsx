@@ -4,13 +4,13 @@ import { MdOutlineTimerOff } from "react-icons/md";
 import { RiTimerFlashLine } from "react-icons/ri";
 import { SiBuymeacoffee } from "react-icons/si";
 import { useOutletContext } from "react-router-dom";
-import BreakRow from "./BreakRow";
-import Card from "./Card";
-import { BreakSection, Content, ContentBody } from "./homepage.styles";
-import { BreakTimerModal, LoginTimerModal } from "./Modals/Modals";
-import TopRow from "./TopRow";
+import BreakRow from "../BreakRow";
+import Card from "../Card";
+import { BreakSection, Content, ContentBody } from "../homepage.styles";
+import { BreakTimerModal, LoginTimerModal } from "../Modals/Modals";
+import TopRow from "../TopRow";
 
-const One = (props: any) => {
+const TimeTracker = (props: any) => {
   const c: any = useOutletContext();
   const {
     showAll,
@@ -45,7 +45,6 @@ const One = (props: any) => {
     formBreak,
   } = c;
 
-  console.log(c);
   return (
     <>
       <Content>
@@ -140,4 +139,4 @@ const One = (props: any) => {
   );
 };
 
-export default One;
+export default TimeTracker;

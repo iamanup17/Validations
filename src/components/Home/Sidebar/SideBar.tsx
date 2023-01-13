@@ -38,7 +38,7 @@ const SideBar = () => {
         </NavLink>
         <NavLink
           style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          to="/tracker/two"
+          to="/tracker/dashboard"
         >
           <NavItem>
             <NavIcon>
@@ -49,7 +49,7 @@ const SideBar = () => {
         </NavLink>
         <NavLink
           style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          to="/tracker/three"
+          to="/tracker/reports"
         >
           <NavItem>
             <NavIcon>
@@ -60,7 +60,7 @@ const SideBar = () => {
         </NavLink>
         <NavLink
           style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          to="/tracker/four"
+          to="/tracker/projects"
         >
           <NavItem>
             <NavIcon>
@@ -71,7 +71,7 @@ const SideBar = () => {
         </NavLink>
         <NavLink
           style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          to="/tracker/five"
+          to="/tracker/team"
         >
           <NavItem>
             <NavIcon>
@@ -82,7 +82,7 @@ const SideBar = () => {
         </NavLink>
         <NavLink
           style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          to="/tracker/six"
+          to="/tracker/settings"
         >
           <NavItem>
             <NavIcon>

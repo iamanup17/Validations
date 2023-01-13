@@ -1,6 +1,6 @@
 import { Button, Form, Input, message } from "antd";
-import React, { useState } from "react";
-import { Navigate, redirect } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Navigate, NavLink, redirect, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -47,6 +47,12 @@ const Body = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  .btnwrap {
+    display: flex;
+    width: 100%;
+    gap :1rem;
+
+  }
 `;
 
 const Footer = styled.div`
@@ -58,8 +64,6 @@ const Footer = styled.div`
 const Logins = (props: any) => {
   // const { formLogin, onFinish } = props;
   const [formLogin] = Form.useForm();
-
-  const [authe, setAuthe] = useState(false);
 
   const openMessage = (x: string, y: string) => {
     const key = "updatable";
@@ -81,14 +85,24 @@ const Logins = (props: any) => {
   // LOGIN
   const onFinish = (values: any) => {
     console.log("Success:", values);
+    localStorage.setItem("login", "true");
     formLogin.resetFields();
     openMessage("Logging in", "Logged in Successfully");
+    let login = localStorage.getItem("login");
     setTimeout(() => {
-      // dispatch(setAuthorization(true));
-      setAuthe(true);
+      if (login === "true") {
+        navigate("/tracker");
+      }
     }, 1000);
   };
   // LOGIN
+  const navigate = useNavigate();
+  useEffect(() => {
+    let login = localStorage.getItem("login");
+    if (login === "true") {
+      navigate("/tracker");
+    }
+  }, [navigate]);
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -138,7 +152,8 @@ const Logins = (props: any) => {
                 <Input.Password />
               </Form.Item>
 
-              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Form.Item wrapperCol={{ offset: 2, span: 24 }}>
+                <div className="btnwrap">
                 <Button
                   type="primary"
                   htmlType="submit"
@@ -146,11 +161,14 @@ const Logins = (props: any) => {
                 >
                   Login
                 </Button>
+                <p>
+                  Dont have Account? <NavLink to="/signup">Sign Up</NavLink>
+                </p>
+                </div>  
               </Form.Item>
             </Form>
           </Body>
         </LoginContainer>
-        {authe && <Navigate to="/tracker" />}
 
         <Footer>
           <span> Copyright © Brainvire 2016, All Rights Reserved.</span>

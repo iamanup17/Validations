@@ -129,9 +129,10 @@ export const UserName = styled.div`
   }
 `;
 
-export const ContentBody = styled.div`
+export const ContentBody =styled.div.attrs((props:any) => ({ align: props.align }))`
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
+  justify-content: ${(props:any)=>props.align ? props.align : "center"};
   gap: 2rem;
   padding: 12px;
 `;

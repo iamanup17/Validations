@@ -29,12 +29,12 @@ import TopRow from "./TopRow";
 import { BreakTimerModal, LoginTimerModal } from "./Modals/Modals";
 import BreakRow from "./BreakRow";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import One from "./One";
-import Two from "./Two";
-import Three from "../Three";
-import Four from "../Four";
-import Five from "../Five";
-import Six from "../Six";
+import One from "./pages/TimeTracker";
+import Two from "./pages/Dashboard";
+import Three from "./pages/Reports";
+import Four from "./pages/Projects";
+import Five from "./pages/Team";
+import Six from "./pages/Settings";
 import { useOutletContext } from "react-router-dom";
 
 interface DataType {
@@ -272,8 +272,6 @@ const Home = () => {
   };
   // :::::::::::::::::::: ON CLICK HANDLER FOR START AND STOP TIMER
 
-  console.log(total);
-
   const showModalBreak = () => {
     setIsModalOpenBreak(true);
   };
@@ -487,7 +485,6 @@ const Home = () => {
     <StyledContainer className="" style={{ background: "#fff" }}>
       <Wrapper>
         <Container>
-          {/* {isAuth ? ( */}
           <>
             <SideBar />
 
@@ -495,7 +492,7 @@ const Home = () => {
               <Outlet
                 context={{
                   formatLoginTimer: formatLoginTimer,
-                  formatBreaksTimer:formatBreaksTimer,
+                  formatBreaksTimer: formatBreaksTimer,
                   showAll: showAll,
                   breaks: breaks,
                   handleStopBreaksTimer: handleStopBreaksTimer,
@@ -508,120 +505,24 @@ const Home = () => {
                   columns: columns,
                   data: data,
                   Head,
-isModalOpen,
-handleOk,
-handleCancel,
-totalLoggedInTime,
-halfDay,
-fullDay,
-compared,
-total,
+                  isModalOpen,
+                  handleOk,
+                  handleCancel,
+                  totalLoggedInTime,
+                  halfDay,
+                  fullDay,
+                  compared,
+                  total,
 
-HeadBreak,
-isModalOpenBreak,
-handleOkBreak,
-handleCancelBreak,
-onFinishBreak,
-formBreak,
+                  HeadBreak,
+                  isModalOpenBreak,
+                  handleOkBreak,
+                  handleCancelBreak,
+                  onFinishBreak,
+                  formBreak,
                 }}
               />
-
-
-
-
-              {/* <TopRow />
-
-                <ContentBody>
-                  {showAll ? (
-                    <>
-                      <Card
-                        name={"Work"}
-                        icon={<RiTimerFlashLine />}
-                        formated={formatLoginTimer()}
-                        cursor={"default"}
-                      />
-
-                      {breaks ? (
-                        <Card
-                          className="breaker"
-                          name={"Stop Break"}
-                          icon={<SiBuymeacoffee />}
-                          formated={formatBreaksTimer()}
-                          handler={handleStopBreaksTimer}
-                        />
-                      ) : (
-                        <Card
-                          className=""
-                          name={"Break"}
-                          icon={<SiBuymeacoffee />}
-                          formated={"Start Break"}
-                          handler={handleStartBreaksTimer}
-                        />
-                      )}
-
-                      <Card
-                        className=""
-                        name={"Work"}
-                        icon={<MdOutlineTimerOff />}
-                        formated={"Stop Timer"}
-                        handler={handleStopLoginTimer}
-                      />
-                    </>
-                  ) : (
-                    <Card
-                      className=""
-                      name={"Work"}
-                      icon={<RiTimerFlashLine />}
-                      formated={"Start Timer"}
-                      handler={handleStartLoginTimer}
-                    />
-                  )}
-                </ContentBody>
-
-                {showAll && (
-                  <>
-                    <BreakRow
-                      TotalBreakTime={TotalBreakTime}
-                      averageMinutes={averageMinutes}
-                      averageSeconds={averageSeconds}
-                    />
-                    <BreakSection>
-                      <Table
-                        columns={columns}
-                        pagination={false}
-                        dataSource={data}
-                      />
-                    </BreakSection>
-                  </>
-                )} */}
             </Content>
-
-            {/* </Routes> */}
-
-            {/* ::::::  LOGIN TIMER MODAL ::::::::::::*/}
-            <LoginTimerModal
-              Head={Head}
-              isModalOpen={isModalOpen}
-              handleOk={handleOk}
-              handleCancel={handleCancel}
-              totalLoggedInTime={totalLoggedInTime}
-              halfDay={halfDay}
-              fullDay={fullDay}
-              compared={compared}
-              total={total}
-            />
-            {/* ::::::  LOGIN TIMER MODAL ::::::::::::*/}
-
-            {/* ::::::  BREAK TIMER MODAL ::::::::::::*/}
-            <BreakTimerModal
-              HeadBreak={HeadBreak}
-              isModalOpenBreak={isModalOpenBreak}
-              handleOkBreak={handleOkBreak}
-              handleCancelBreak={handleCancelBreak}
-              onFinishBreak={onFinishBreak}
-              formBreak={formBreak}
-            />
-            {/* ::::::  BREAK TIMER MODAL ::::::::::::*/}
           </>
         </Container>
       </Wrapper>
