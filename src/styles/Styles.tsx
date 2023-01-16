@@ -25,7 +25,10 @@ export const StyledContainer = styled.div`
   a:active {
     text-decoration: none;
   }
-  
+
+  .error{
+  color:rgb(239, 69, 69)
+}
 
 
 

@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Content, ContentBody } from "../components/Home/homepage.styles";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+// import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { getStaticContextFromError } from "@remix-run/router";
 // import "leaflet/dist/leaflet.css";
+
+import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
+
+// AIzaSyBJmi5ykWh8Hv1RYH-hwadxGICmPGKBK5E
 
 // const FormWrapper = styled.div``;
 
@@ -63,6 +68,7 @@ const FormInput: any = styled.input`
 const ErrorMessage: any = styled.span`
   font-size: 14px;
   color: #e54040;
+  
   /* display: none; */
 `;
 const SubmitButton = styled.button`
@@ -89,18 +95,30 @@ const FormSelect = styled.select`
 // const FormWrapper = styled.div``;
 
 const SignUp = () => {
-  const [error, setError] = useState(false);
-  const [errorPhone, setErrorPhone] = useState(false);
-  const [errorEmail, setErrorEmail] = useState(false);
-  const [errorPassword, setErrorPassword] = useState(false);
-  const [errorCPassword, setErrorCPassword] = useState(false);
+  // const [error, setError] = useState(false);
+  // const [errorPhone, setErrorPhone] = useState(false);
+  // const [errorEmail, setErrorEmail] = useState(false);
+  // const [errorPassword, setErrorPassword] = useState(false);
+  // const [errorCPassword, setErrorCPassword] = useState(false);
 
-  const [formValues, setFormValues] = useState({
+  const googleKey = "AIzaSyBJmi5ykWh8Hv1RYH-hwadxGICmPGKBK5E";
+  // const Map = withScriptjs(
+  //   withGoogleMap((props: any) => {
+  //     return (
+  //       <GoogleMap
+  //         defaultZoom={8}
+  //         defaultCenter={{ lat: -34.397, lng: 150.644 }}
+  //       />
+  //     );
+  //   })
+  // );
+
+  const [formData, setFormData] = useState({
     Name: "",
     email: "",
     phone: "",
     password: "",
-    cPassword: "",
+    // cPassword: "",
     cpName: "",
     cpPhone: "",
     clName: "",
@@ -124,80 +142,242 @@ const SignUp = () => {
     email,
     phone,
     password,
-    cPassword,
+    // cPassword,
     cpName,
     cpPhone,
     clName,
     mBrand,
     crNum,
     vcNum,
+
     cCode,
     iBan,
     bBan,
     sepa,
+
     cmpName,
     cmpHqAdd,
     country,
     state,
     pincode,
-  } = formValues;
+  } = formData;
 
-  const handleChange = (e: any) => {
-    const formatName = /^[a-zA-Z]{2,}$/; // regular expression to match only letters
-    const phoneFormat = /^[0-9]{10}$/;
-    const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordFormat =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})/; // 1num 1upr 1lwr and 1 splchar
+  const [formError, setFormError] = useState<any>({});
+  const [formErrors, setFormErrors] = useState<any>({});
 
-    let { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-
-    if (name === "Name") {
-      if (formatName.test(value)) {
-        setFormValues({ ...formValues, [name]: value });
-        setError(false);
-      } else {
-        setError(true);
-      }
-    } else if (name === "phone") {
-      if (phoneFormat.test(value)) {
-        setFormValues({ ...formValues, [name]: value });
-        setErrorPhone(false);
-      } else {
-        setErrorPhone(true);
-      }
-    } else if (name === "email") {
-      if (emailFormat.test(value)) {
-        setFormValues({ ...formValues, [name]: value });
-        setErrorEmail(false);
-      } else {
-        setErrorEmail(true);
-      }
-    } else if (name === "password") {
-      if (passwordFormat.test(value)) {
-        setFormValues({ ...formValues, [name]: value });
-        setErrorPassword(false);
-      } else {
-        setErrorPassword(true);
-      }
-    } else if (name === "cPassword") {
-      if (cPassword !== password) {
-        setErrorCPassword(true);
-      } else {
-        setErrorCPassword(false);
+  const validateForm = () => {
+    let err: any = {};
+    if (Name === "") {
+      err.Name = "Name should not be empty";
+    } else {
+      let regex = /^[a-zA-Z]{2,}$/;
+      if (!regex.test(Name)) {
+        err.Name = "Name only contains alphabets";
       }
     }
 
-    console.log(name, " :", value);
+    if (email === "") {
+      err.email = "Email should not be empty";
+    } else {
+      let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!regex.test(email)) {
+        err.email = "Invalid Email";
+      }
+    }
+
+    if (phone === "") {
+      err.phone = "Phone no. should not be empty";
+    } else {
+      let regex = /^[0-9]{10}$/;
+      if (!regex.test(phone)) {
+        err.phone = "Invalid phone number";
+      }
+    }
+
+    if (password === "") {
+      err.password = "Password or Confirm should not be empty";
+    } else {
+      let regex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})/;
+      if (!regex.test(password)) {
+        err.password = "Invalid Password format";
+      }
+    }
+
+    if (cpName === "") {
+      err.cpName = "Contact person name should not be empty";
+    }
+    if (cpPhone === "") {
+      err.cpPhone = "Contact person Phone should not be empty";
+    } else {
+      let regex = /^[0-9]{10}$/;
+      if (!regex.test(cpPhone)) {
+        err.cpPhone = "Invalid phone number";
+      }
+    }
+
+    if (cCode === "") {
+      err.cCode = "Please select country code";
+    }
+    if (iBan === "") {
+      err.iBan = "Please select IBAN number";
+    }
+    if (bBan === "") {
+      err.bBan = "Please select BBAN number";
+    }
+    if (sepa === "") {
+      err.sepa = "Please select SEPA number";
+    }
+
+    if (cmpHqAdd === "") {
+      err.cmpHqAdd = "Address should not be empty";
+    }
+    if (country === "") {
+      err.country = "Please select your Country";
+    }
+    if (state === "") {
+      err.state = "Please select State";
+    }
+    if (pincode === "") {
+      err.pincode = "Please select Pincode";
+    }
+
+    setFormError({ ...err });
+    return Object.keys(err).length < 1;
+  };
+  const formatName = /^[a-zA-Z]{2,}$/; // regular expression to match only letters
+  const phoneFormat = /^[0-9]{10}$/;
+  const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const passwordFormat =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})/; // 1num 1upr 1lwr and 1 splchar
+
+  const handleChange = (e: any) => {
+    let { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    let newErrors = { ...formErrors };
+
+    switch (name) {
+      case "Name":
+        newErrors.Name =
+          value.trim().length === 0
+            ? "Name is required change"
+            : !formatName.test(value)
+            ? "Name only contains alphabets change"
+            : "";
+        break;
+      case "email":
+        newErrors.email =
+          value.trim().length === 0
+            ? "Email is required"
+            : !emailFormat.test(value)
+            ? "Invalid Email"
+            : "";
+        break;
+      case "phone":
+        newErrors.phone =
+          value.trim().length === 0
+            ? "Phone no is required"
+            : !phoneFormat.test(value)
+            ? "Phone no only contains numbers"
+            : "";
+        break;
+      case "password":
+        newErrors.password =
+          value.trim().length === 0
+            ? "Password is required"
+            : !passwordFormat.test(value)
+            ? "Invalid Password format"
+            : "";
+        break;
+
+      // case 'cPassword':
+      //   newErrors.cPassword = value.trim().length === 0 ? 'Confirm Password is required' : (cPassword===password ? 'Password does not match' : 'Okay');
+      //   break;
+      case "phone":
+        newErrors.phone =
+          value.trim().length === 0
+            ? "Name is required"
+            : !formatName.test(value)
+            ? "Name only contains alphabets"
+            : "";
+        break;
+      case "cpName":
+        newErrors.cpName =
+          value.trim().length === 0
+            ? "Name is required"
+            : !formatName.test(value)
+            ? "Name only contains alphabets"
+            : "";
+        break;
+      case "cpPhone":
+        newErrors.cpPhone =
+          value.trim().length === 0
+            ? "Name is required"
+            : !phoneFormat.test(value)
+            ? "Phone no only contains numbers"
+            : "";
+        break;
+    }
+
+    setFormErrors({ ...newErrors });
+
+    // return Object.keys(newErrors).length < 1;
+
+    // if (name === "Name") {
+    //   if (formatName.test(value)) {
+    //     setFormValues({ ...formValues, [name]: value });
+    //     setError(false);
+    //   } else {
+    //     setError(true);
+    //   }
+    // } else if (name === "phone") {
+    //   if (phoneFormat.test(value)) {
+    //     setFormValues({ ...formValues, [name]: value });
+    //     setErrorPhone(false);
+    //   } else {
+    //     setErrorPhone(true);
+    //   }
+    // } else if (name === "email") {
+    //   if (emailFormat.test(value)) {
+    //     setFormValues({ ...formValues, [name]: value });
+    //     setErrorEmail(false);
+    //   } else {
+    //     setErrorEmail(true);
+    //   }
+    // } else if (name === "password") {
+    //   if (passwordFormat.test(value)) {
+    //     setFormValues({ ...formValues, [name]: value });
+    //     setErrorPassword(false);
+    //   } else {
+    //     setErrorPassword(true);
+    //   }
+    // } else if (name === "cPassword") {
+    //   if (cPassword !== password) {
+    //     setErrorCPassword(true);
+    //   } else {
+    //     setErrorCPassword(false);
+    //   }
+    // }
+
+    // console.log(name, " :", value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("form submit");
-    if (!Name) {
-      setError(true);
+    // console.log(formData);
+
+    let isValid = validateForm();
+
+    if (isValid) {
+      alert("All Good");
+    } else {
+      alert("Something went wrong");
     }
+    // console.log(isValid);
   };
+  console.log(formError);
+
   return (
     <ContentBody align="none">
       <FormWrapper>
@@ -221,12 +401,12 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={Name}
                 />
-                {error && (
-                  <ErrorMessage>
-                    {" "}
-                    Name should contain atleast 2 letters and should not contain
-                    any special characters and numbers
-                  </ErrorMessage>
+
+                <ErrorMessage className="invalid">
+                  {formError.Name}
+                </ErrorMessage>
+                {formErrors.Name && (
+                  <span className="error">{formErrors.Name}</span>
                 )}
               </FormInputWrapper>
               <FormInputWrapper>
@@ -239,8 +419,13 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={email}
                 />
-                {errorEmail && (
-                  <ErrorMessage>Please enter a valid email id, <span style={{color:"gray"}}>example (jon@doe.com)</span></ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* Please enter a valid email id,{" "}
+                    <span style={{ color: "gray" }}>example (jon@doe.com)</span> */}
+                  {formError.email}
+                </ErrorMessage>
+                {formErrors.email && (
+                  <span className="error">{formErrors.email}</span>
                 )}
               </FormInputWrapper>
               <FormInputWrapper>
@@ -253,8 +438,12 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={phone}
                 />
-                {errorPhone && (
-                  <ErrorMessage>Phone number only contain(0 - 9)Numbers & must be 10 digits</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* Phone number only contain(0 - 9)Numbers & must be 10 digits */}
+                  {formError.phone}
+                </ErrorMessage>
+                {formErrors.phone && (
+                  <span className="error">{formErrors.phone}</span>
                 )}
               </FormInputWrapper>
               <FormInputWrapper>
@@ -267,12 +456,18 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={password}
                 />
-                {errorPassword && (
-                  <ErrorMessage> Password must contain atleast 1 uppercase 1 lowercase 1special char & 1 number</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {" "}
+                  {formError.password}
+                  {/* Password must contain atleast 1 uppercase 1 lowercase
+                    1special char & 1 number */}
+                </ErrorMessage>
+                {formErrors.password && (
+                  <span className="error">{formErrors.password}</span>
                 )}
               </FormInputWrapper>
-{/* 
-              <FormInputWrapper>
+
+              {/* <FormInputWrapper>
                 <FormLabel htmlFor="cPassword">Confirm Password</FormLabel>
                 <FormInput
                   type="text"
@@ -282,12 +477,10 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={cPassword}
                 />
-                {errorCPassword && (
-                  <ErrorMessage>
-                    {" "}
-                   Password doesnt match
-                  </ErrorMessage>
-                )}
+                <ErrorMessage className="invalid">
+                </ErrorMessage>
+                {formErrors.cPassword && <span className='error'>{formErrors.cPassword}</span>}
+
               </FormInputWrapper> */}
             </FormSection>
 
@@ -303,7 +496,13 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={cpName}
                 />
-                <ErrorMessage> please enter contact person name</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter contact person name */}
+                  {formError.cpName}
+                </ErrorMessage>
+                {formErrors.cpName && (
+                  <span className="error">{formErrors.cpName}</span>
+                )}
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="cpPhone">
@@ -317,10 +516,13 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={cpPhone}
                 />
-                <ErrorMessage>
+                <ErrorMessage className="invalid">
                   {" "}
-                  please enter Contact Person Mobile no
+                  {formError.cpPhone}
                 </ErrorMessage>
+                {formErrors.cpPhone && (
+                  <span className="error">{formErrors.cpPhone}</span>
+                )}
               </FormInputWrapper>
             </FormSection>
 
@@ -336,7 +538,9 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={clName}
                 />
-                <ErrorMessage> please enter Company Legal Name</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter Company Legal Name */}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="mBrand">Main Brand</FormLabel>
@@ -348,7 +552,9 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={mBrand}
                 />
-                <ErrorMessage> please enter Main Brand</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter Main Brand */}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="crNum">Company CR number</FormLabel>
@@ -360,7 +566,9 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={crNum}
                 />
-                <ErrorMessage> please enter Company CR number</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter Company CR number */}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="vcNum">Vat certificate number</FormLabel>
@@ -372,9 +580,9 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={vcNum}
                 />
-                <ErrorMessage>
+                <ErrorMessage className="invalid">
                   {" "}
-                  please enter Vat certificate number
+                  {/* please enter Vat certificate number */}
                 </ErrorMessage>
               </FormInputWrapper>
             </FormSection>
@@ -390,13 +598,19 @@ const SignUp = () => {
                   value={cCode}
                   id="ccode"
                 >
+                  <option value="" disabled>
+                    Select country code
+                  </option>
                   <option value="Saudi Arabia"> SA </option>
                   <option value="India"> IND </option>
                   <option value="Srilanka"> SL </option>
                   <option value="China"> CHN </option>
                 </FormSelect>
 
-                <ErrorMessage> please select COUNTRY CODE</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please select COUNTRY CODE */}
+                  {formError.cCode}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="iBan">IBAN CHECK Digits</FormLabel>
@@ -406,12 +620,18 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={iBan}
                 >
+                  <option value="" disabled>
+                    Select IBAN check digits
+                  </option>
                   <option value="Saudi Arabia"> 01 </option>
                   <option value="India"> 02 </option>
                   <option value="Srilanka"> 03 </option>
                   <option value="China"> 04 </option>
                 </FormSelect>
-                <ErrorMessage> please Select IBAN CHECK Digits</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please Select IBAN CHECK Digits */}
+                  {formError.iBan}
+                </ErrorMessage>
               </FormInputWrapper>
 
               {/* <div>
@@ -442,7 +662,10 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={bBan}
                 />
-                <ErrorMessage> please enter bban number</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter bban number */}
+                  {formError.bBan}
+                </ErrorMessage>
               </FormInputWrapper>
 
               <FormInputWrapper>
@@ -453,12 +676,18 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={sepa}
                 >
+                  <option value="" disabled>
+                    Select SEPA number
+                  </option>
                   <option value="Saudi Arabia"> 01 </option>
                   <option value="India"> 02 </option>
                   <option value="Srilanka"> 03 </option>
                   <option value="China"> 04 </option>
                 </FormSelect>
-                <ErrorMessage> please Select IBAN CHECK Digits</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please Select IBAN CHECK Digits */}
+                  {formError.sepa}
+                </ErrorMessage>
               </FormInputWrapper>
             </FormSection>
 
@@ -474,7 +703,9 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={cmpName}
                 />
-                <ErrorMessage> please enter Company Name</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter Company Name */}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="cmpHqAdd">
@@ -488,9 +719,10 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={cmpHqAdd}
                 />
-                <ErrorMessage>
+                <ErrorMessage className="invalid">
                   {" "}
-                  please enter Company Head quarter address
+                  {/* please enter Company Head quarter address */}
+                  {/* {formError.cmpHqAdd} */}
                 </ErrorMessage>
               </FormInputWrapper>
 
@@ -510,7 +742,10 @@ const SignUp = () => {
                   <option value="Srilanka"> Srilanka</option>
                   <option value="Qatar"> Qatar </option>
                 </FormSelect>
-                <ErrorMessage> please Select country</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please Select country */}
+                  {formError.country}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="state">State</FormLabel>
@@ -520,12 +755,19 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={state}
                 >
+                  {" "}
+                  <option value="" disabled>
+                    Select a State
+                  </option>
                   <option value="Maharashtra"> Maharashtra </option>
                   <option value="Uttar Pradesh "> Uttar Pradesh </option>
                   <option value="Haryana"> Haryana </option>
                   <option value="Punjab"> Punjab </option>
                 </FormSelect>
-                <ErrorMessage> please Select state</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please Select state */}
+                  {formError.state}
+                </ErrorMessage>
               </FormInputWrapper>
 
               <FormInputWrapper>
@@ -536,13 +778,42 @@ const SignUp = () => {
                   onChange={handleChange}
                   value={pincode}
                 >
+                  <option value="" disabled>
+                    Select Pincode
+                  </option>
                   <option value="440033"> 440033 </option>
                   <option value="440034"> 440034</option>
                   <option value="440035"> 440035</option>
                   <option value="440036">440036</option>
                 </FormSelect>
-                <ErrorMessage> please Select state</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please Select state */}
+                  {formError.pincode}
+                </ErrorMessage>
               </FormInputWrapper>
+
+              {/*  */}
+
+              {/* <div style={{ width: "100%", height: "100%" }}>
+                <Map
+                  googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${googleKey}`}
+                  loadingElement={<div style={{ height: `100%` }} />}
+                  containerElement={<div style={{ height: `400px` }} />}
+                  mapElement={<div style={{ height: `100%` }} />}
+                />
+              </div> */}
+
+              {/*  */}
+
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3769.147813380054!2d72.85098531490213!3d19.14500598704841!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b137f65f1aab%3A0xbaecafd57d194ecc!2sBrainvire%20-%20eCommerce%20%26%20Mobile%20App%20Development%20Company!5e0!3m2!1sen!2sin!4v1673858578822!5m2!1sen!2sin"
+                width="100%"
+                height="350"
+                style={{ border: 0 }}
+                // allowFullScreen:=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </FormSection>
             <FormSection>
               <SectionHeading>Address Location 2 </SectionHeading>
@@ -554,7 +825,9 @@ const SignUp = () => {
                   name="cpname"
                   placeholder="Contact Person Name"
                 />
-                <ErrorMessage> please enter contact person name</ErrorMessage>
+                <ErrorMessage className="invalid">
+                  {/* please enter contact person name */}
+                </ErrorMessage>
               </FormInputWrapper>
               <FormInputWrapper>
                 <FormLabel htmlFor="cpphone">
@@ -566,9 +839,9 @@ const SignUp = () => {
                   name="cpphone"
                   placeholder="Contact Person Mobile no"
                 />
-                <ErrorMessage>
+                <ErrorMessage className="invalid">
                   {" "}
-                  please enter Contact Person Mobile no
+                  {/* please enter Contact Person Mobile no */}
                 </ErrorMessage>
               </FormInputWrapper>
             </FormSection>

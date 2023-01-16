@@ -10,7 +10,9 @@ export const GlobalStyles = createGlobalStyle`
     body{
         /* background: #000; */
     }
-
+    .error{
+  color:rgb(239, 69, 69)
+}
 
 
     body{
